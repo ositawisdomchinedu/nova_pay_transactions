@@ -1,0 +1,1 @@
+The exploratory data analysis visualizations were automatically generated and saved to the /reports/figures directory to ensure reproducibility and facilitate reporting.
