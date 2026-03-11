@@ -67,43 +67,39 @@ src/nova/data_loader.py
 
 Handles:
 
-Missing values
+- Missing values
 
-Cleaning categorical fields
+- Cleaning categorical fields
 
-Numeric conversion
+- Numeric conversion
 
-Timestamp parsing
+- Timestamp parsing
 
-File:
-
-````markdown
-src/nova/preprocessing.py
+## File: src/nova/preprocessing.py
 
 
 # Feature Engineering
 
 ## Adds useful behavioral and time-based features such as:
 
-Hour of transaction
+- Hour of transaction
 
-Day of week
+- Day of week
 
-Weekend indicator
+- Weekend indicator
 
-Customer transaction history
+- Customer transaction history
 
-Transaction velocity
+- Transaction velocity
 
-Cross-border indicator
+- Cross-border indicator
 
-Currency mismatch
+- Currency mismatch
 
-Amount behavior ratios
+- Amount behavior ratios
 
 ## File:
 
-````markdown
 src/nova/feature_engineering.py
 
 
@@ -111,178 +107,142 @@ src/nova/feature_engineering.py
 
 ## Generates insights and visualizations including:
 
-Fraud vs non-fraud distribution
+- Fraud vs non-fraud distribution
 
-Transaction amount distribution
+- Transaction amount distribution
 
-Fraud rate by channel
+- Fraud rate by channel
 
-Fraud rate by KYC tier
+- Fraud rate by KYC tier
 
-Transaction velocity patterns
+- Transaction velocity patterns
 
-Account age distribution
+- Account age distribution
 
-## All plots are saved to:
-
-````markdown
-reports/figures/
-
-## File:
-
-src/nova/eda.py
+## All plots are saved to: src/nova/eda.py
 
 # Model Training
 
 ## The fraud model uses a Scikit-Learn Pipeline consisting of:
 
-Missing value imputation
+- Missing value imputation
 
-Feature scaling
+- Feature scaling
 
-One-hot encoding for categorical features
+- One-hot encoding for categorical features
 
-Logistic Regression classifier
+- Logistic Regression classifier
 
-Class imbalance is handled using:
+- Class imbalance is handled using: class_weight="balanced"
 
-````Python
-class_weight="balanced"
-
-
-File:
-
-````Markdown
-src/nova/training.py
 
 
 # Model Evaluation
 
-Evaluation metrics include:
+- Evaluation metrics include:
 
-Confusion Matrix
+- Confusion Matrix
 
-Precision / Recall / F1 Score
+- Precision / Recall / F1 Score
 
-ROC-AUC
+- ROC-AUC
 
-Precision-Recall AUC
-
-File:
-
-````Markdown
-src/nova/evaluate.py
+- Precision-Recall AUC
 
 # Feature Importance
 
 Feature importance is computed using the **logistic regression coefficients**, which provide a **global interpretation** of the model.
 
-Saved to:
-
-````Markdown
-reports/feature_importance.csv
+## Saved to: reports/feature_importance.csv
 
 
 # Interactive Fraud Prediction App
 
 The Streamlit application allows users to:
 
-Enter transaction details
+- Enter transaction details
 
-Predict fraud probability
+- Predict fraud probability
 
-View prediction results
+- View prediction results
 
-See model explanations using SHAP
+- See model explanations using SHAP
 
-File:
-
-````Markdown
-app.py
 
 # Installation
 ## 1. Clone the Repository
 
-````Bash
-git clone <repository-url>
+git clone <https://github.com/ositawisdomchinedu/nova_pay_transactions>
 cd nova_pay_transactions
 
 ## 2. Create a Virtual Environment
 
-````Bash
 python -m venv env
 env\Scripts\activate
 
 ## 3. Install Dependencies
 
-````Bash
 pip install -r requirements.txt
 
 # Required Python Packages
 
-````
-pandas
-numpy
-matplotlib
-scikit-learn
-joblib
-streamlit
-shap
+- pandas
+- numpy
+- matplotlib
+- scikit-learn
+- joblib
+- streamlit
+- shap
 
 # Running the Pipeline
 
-Train the model and generate reports:
-
-````Bash
-python main.py
+## Train the model and generate reports: python main.py
 
 This will:
 
-Load the dataset
+- Load the dataset
 
-Clean and preprocess the data
+- Clean and preprocess the data
 
-Perform exploratory data analysis
+- Perform exploratory data analysis
 
-Engineer new features
+- Engineer new features
 
-Train the fraud detection model
+- Train the fraud detection model
 
-Evaluate model performance
+- Evaluate model performance
 
-Save the trained model pipeline
+- Save the trained model pipeline
 
 Generated outputs:
 
-````
-models/fraud_pipeline.pkl
-models/shap_background.pkl
-reports/feature_importance.csv
-reports/eda_report.md
-reports/figures/*.png
+- models/fraud_pipeline.pkl
+- models/shap_background.pkl
+- reports/feature_importance.csv
+- reports/eda_report.md
+- reports/figures/*.png
 
 # Running the Fraud Detection App
 
 Launch the Streamlit interface:
 
-````Bash
 streamlit run app.py
 
 # Using the App
 
 Enter transaction information in the sidebar.
 
-Click Predict Fraud Risk.
+- Click Predict Fraud Risk.
 
 The app will display:
 
-Fraud prediction result
+- Fraud prediction result
 
-Fraud probability score
+- Fraud probability score
 
-Transaction summary
+- Transaction summary
 
-Model explanation for the prediction
+- Model explanation for the prediction
 
 # Model Interpretability
 
