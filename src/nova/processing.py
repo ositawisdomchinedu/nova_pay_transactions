@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 def clean_value(val, field):
@@ -49,11 +49,23 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
         if col in work.columns:
             work[col] = work[col].apply(lambda x: clean_value(x, col))
 
-    numeric_cols = ["amount_src", "amount_usd", "fee", "exchange_rate_src_to_dest",
-                    "ip_risk_score", "account_age_days", "device_trust_score",
-                    "chargeback_history_count", "risk_score_internal",
-                    "txn_velocity_1h", "txn_velocity_24h", "corridor_risk",
-                    "new_device", "location_mismatch", "is_fraud"]
+    numeric_cols = [
+        "amount_src",
+        "amount_usd",
+        "fee",
+        "exchange_rate_src_to_dest",
+        "ip_risk_score",
+        "account_age_days",
+        "device_trust_score",
+        "chargeback_history_count",
+        "risk_score_internal",
+        "txn_velocity_1h",
+        "txn_velocity_24h",
+        "corridor_risk",
+        "new_device",
+        "location_mismatch",
+        "is_fraud",
+    ]
 
     for col in numeric_cols:
         if col in work.columns:

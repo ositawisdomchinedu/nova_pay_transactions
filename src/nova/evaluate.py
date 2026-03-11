@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.metrics import (
+    average_precision_score,
     classification_report,
     confusion_matrix,
     roc_auc_score,
-    average_precision_score
 )
 
 
@@ -20,10 +20,19 @@ def evaluate_model(model, X_test, y_test):
     return results
 
 
-def get_feature_importance(model, X_train):
-    coef_df = pd.DataFrame({
-        "feature": X_train.columns,
-        "coefficient": model.coef_[0]
-    })
+def get_feature_importance(pipeline, top_n: int = 10) -> pd.DataFrame:
+    model = pipeline.named_steps["classifier"]
+    preprocessor = pipeline.named_steps["preprocessor"]
+
+    feature_names = preprocessor.get_feature_names_out()
+
+    coef_df = pd.DataFrame(
+        {
+            "feature": feature_names,
+            "coefficient": model.coef_[0],
+        }
+    )
     coef_df["abs_coefficient"] = coef_df["coefficient"].abs()
-    return coef_df.sort_values("abs_coefficient", ascending=False)
+    coef_df = coef_df.sort_values("abs_coefficient", ascending=False)
+
+    return coef_df.head(top_n)

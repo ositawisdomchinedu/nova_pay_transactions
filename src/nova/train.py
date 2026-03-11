@@ -1,7 +1,9 @@
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
 
 FEATURE_COLS = [
     "home_country", "source_currency", "dest_currency", "channel",
@@ -20,13 +22,7 @@ FEATURE_COLS = [
 def prepare_model_data(df: pd.DataFrame):
     model_df = df[FEATURE_COLS + ["is_fraud"]].copy()
 
-    for col in model_df.select_dtypes(include="number").columns:
-        model_df[col] = model_df[col].fillna(model_df[col].median())
-
-    for col in model_df.select_dtypes(include="object").columns:
-        model_df[col] = model_df[col].fillna("missing")
-
-    X = pd.get_dummies(model_df.drop(columns="is_fraud"), drop_first=False)
+    X = model_df.drop(columns="is_fraud")
     y = model_df["is_fraud"]
 
     split_idx = int(len(model_df) * 0.8)
@@ -39,17 +35,36 @@ def prepare_model_data(df: pd.DataFrame):
     return X_train, X_test, y_train, y_test
 
 
-def scale_data(X_train, X_test):
-    num_cols = X_train.select_dtypes(include="number").columns
+def build_pipeline(X_train: pd.DataFrame):
+    numeric_features = X_train.select_dtypes(include="number").columns.tolist()
+    categorical_features = X_train.select_dtypes(exclude="number").columns.tolist()
 
-    scaler = StandardScaler()
-    X_train[num_cols] = scaler.fit_transform(X_train[num_cols])
-    X_test[num_cols] = scaler.transform(X_test[num_cols])
+    numeric_transformer = Pipeline(steps=[
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler())
+    ])
 
-    return X_train, X_test, scaler
+    categorical_transformer = Pipeline(steps=[
+        ("imputer", SimpleImputer(strategy="constant", fill_value="missing")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore"))
+    ])
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric_transformer, numeric_features),
+            ("cat", categorical_transformer, categorical_features)
+        ]
+    )
+
+    pipeline = Pipeline(steps=[
+        ("preprocessor", preprocessor),
+        ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42))
+    ])
+
+    return pipeline
 
 
 def train_model(X_train, y_train):
-    model = LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    pipeline = build_pipeline(X_train)
+    pipeline.fit(X_train, y_train)
+    return pipeline

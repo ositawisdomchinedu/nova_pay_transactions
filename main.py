@@ -1,58 +1,60 @@
+from pathlib import Path
+
 from src.nova.data_loader import load_data
-from src.nova.processing import preprocess_data
 from src.nova.eda import run_eda
-from src.nova.feature_engineering import engineer_features
-from src.nova.train import prepare_model_data, scale_data, train_model
 from src.nova.evaluate import evaluate_model, get_feature_importance
+from src.nova.feature_engineering import engineer_features
+from src.nova.processing import preprocess_data
+from src.nova.train import prepare_model_data, train_model
 from src.nova.utils import save_object
 
 
-DATA_PATH = "data/raw/nova_pay_transactions.csv"
+PROJECT_ROOT = Path.cwd()
+DATA_PATH = PROJECT_ROOT / "data" / "nova_pay_transaction.csv"
 
 
 def main():
-    # Load
     df = load_data(DATA_PATH)
+    print("Loaded:", df.shape)
 
-    # Preprocess
     df = preprocess_data(df)
+    print("Preprocessed:", df.shape)
 
-     # Run EDA
     run_eda(df)
 
-    # Feature engineering
     df = engineer_features(df)
+    print("Feature engineered:", df.shape)
 
-    # Prepare data
     X_train, X_test, y_train, y_test = prepare_model_data(df)
+    print("Train shape:", X_train.shape)
+    print("Test shape:", X_test.shape)
 
-    # Align train/test columns in case dummy columns differ
-    X_train, X_test = X_train.align(X_test, join="left", axis=1, fill_value=0)
+    pipeline = train_model(X_train, y_train)
 
-    # Scale
-    X_train, X_test, scaler = scale_data(X_train, X_test)
+    results = evaluate_model(pipeline, X_test, y_test)
+    importance_df = get_feature_importance(pipeline, top_n=20)
 
-    # Train
-    model = train_model(X_train, y_train)
-
-    # Evaluate
-    results = evaluate_model(model, X_test, y_test)
-    importance_df = get_feature_importance(model, X_train)
-
-    print("Confusion Matrix:")
+    print("\nConfusion Matrix:")
     print(results["confusion_matrix"])
+
     print("\nClassification Report:")
     print(results["classification_report"])
+
     print(f"ROC-AUC: {results['roc_auc']:.3f}")
     print(f"PR-AUC: {results['pr_auc']:.3f}")
 
-    print("\nTop 10 Important Features:")
-    print(importance_df.head(10))
+    print("\nTop 20 Important Features:")
+    print(importance_df)
 
-    # Save model artifacts
-    save_object(model, "models/fraud_detection_model_01.pkl")
-    save_object(scaler, "models/scaler_01.pkl")
-    save_object(list(X_train.columns), "models/model_columns.pkl")
+    save_object(pipeline, PROJECT_ROOT / "models" / "fraud_pipeline.pkl")
+    save_object(
+        X_train.sample(min(200, len(X_train)), random_state=42),
+        PROJECT_ROOT / "models" / "shap_background.pkl",
+    )
+
+    importance_df.to_csv(PROJECT_ROOT / "reports" / "feature_importance.csv", index=False)
+
+    print("\nSaved pipeline and reports successfully.")
 
 
 if __name__ == "__main__":
